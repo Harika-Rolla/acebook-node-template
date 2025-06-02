@@ -23,6 +23,25 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Start application in background
+        run: npm run start:test &
+        env:
+          MONGODB_URL: 'mongodb://localhost:27017/acebook_test'
+
+      - name: Wait for application to start
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3030 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+
+      - name: Run Cypress integration tests
+        run: npm run test:integration
+
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.10.0
         with:
