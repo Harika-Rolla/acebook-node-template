@@ -10,6 +10,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,6 +33,7 @@ jobs:
         run: npm run start:test &
         env:
           MONGODB_URL: 'mongodb://localhost:27017/acebook_test'
+          NODE_ENV: 'test'
 
       - name: Wait for application to start
         run: |
