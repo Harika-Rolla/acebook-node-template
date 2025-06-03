@@ -1,0 +1,53 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start application in background
+        run: npm run start:test &
+        env:
+          MONGODB_URL: 'mongodb://localhost:27017/acebook_test'
+          NODE_ENV: 'test'
+
+      - name: Wait for application to start
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3030 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+
+      - name: Run Cypress integration tests
+        run: npm run test:integration
+
+      - name: Run full test suite
+        run: npm test
