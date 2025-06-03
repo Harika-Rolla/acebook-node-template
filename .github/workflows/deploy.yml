@@ -1,55 +1,38 @@
-name: CI Pipeline
+name: CD pipeline
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  test:
+  deploy:
+    name: Deploy to AWS
     runs-on: ubuntu-latest
-
-    services:
-      mongodb:
-        image: mongo:4.4
-        ports:
-          - 27017:27017
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          node-version: '20'
-          cache: 'npm'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2 
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Start application in background
-        run: npm run start:test &
-        env:
-          MONGODB_URL: 'mongodb://localhost:27017/acebook_test'
-          NODE_ENV: 'test'
-
-      - name: Wait for application to start
+      - name: Zip source files
         run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:3030 > /dev/null; then
-              echo "Server is up!"
-              break
-            fi
-            echo "Waiting for server... ($i/30)"
-            sleep 1
-          done
+          zip -r app.zip . -x "*.git*" -x "*.github*"    
 
-      - name: Run Cypress integration tests
-        run: npm run test:integration
+      - name: Upload to S3
+        run: |
+          aws s3 cp app.zip s3://acebook-node-teamhhh/app.zip
 
-    
-
-      - name: Run full test suite
-        run: npm test
+      - name: Trigger CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name acebook-h3-codedeploy \
+            --deployment-group-name your-deployment-group \
+            --s3-location bucket=acebook-node-teamhhh,key=app.zip,bundleType=zip \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --description "Deployment from GitHub Actions"
