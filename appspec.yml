@@ -1,0 +1,20 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ec2-user/acebook
+    overwrite: yes
+
+hooks:
+  BeforeInstall:
+    - location: scripts/before_install.sh
+      runas: ec2-user
+
+  AfterInstall:
+    - location: scripts/install_dependencies.sh
+      runas: ec2-user
+
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      runas: ec2-user
