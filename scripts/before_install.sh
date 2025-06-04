@@ -1,7 +1,6 @@
 #!/bin/bash
-set -xe  # Print commands and exit on errors
-
 echo "Cleaning old app directory..."
-rm -rf /home/ec2-user/acebook
-
-echo "Clean up done."
+# Give ec2-user permission to remove everything
+sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
+# Remove everything *except* the scripts directory (to avoid deleting this script)
+find /home/ec2-user/acebook -mindepth 1 ! -path "/home/ec2-user/acebook/scripts/*" -exec rm -rf {} +
