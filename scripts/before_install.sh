@@ -7,11 +7,28 @@
 # # Delete everything inside acebook EXCEPT the scripts folder and its contents
 # find /home/ec2-user/acebook -mindepth 1 ! -path "/home/ec2-user/acebook/scripts*" -exec rm -rf {} +
 
+# echo "Cleaning old app directory..."
+
+# # Make sure ownership is correct
+# sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
+
+# # Remove everything except the scripts directory
+# find /home/ec2-user/acebook -mindepth 1 ! -path "/home/ec2-user/acebook/scripts" ! -path "/home/ec2-user/acebook/scripts/*" -exec rm -rf {} +
+
+#!/bin/bash
 echo "Cleaning old app directory..."
 
-# Make sure ownership is correct
-sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
+# Make sure ownership is correct, only if directory exists
+if [ -d "/home/ec2-user/acebook" ]; then
+  sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
 
-# Remove everything except the scripts directory
-find /home/ec2-user/acebook -mindepth 1 ! -path "/home/ec2-user/acebook/scripts" ! -path "/home/ec2-user/acebook/scripts/*" -exec rm -rf {} +
+  # Remove everything except the scripts directory and its contents
+  find /home/ec2-user/acebook -mindepth 1 \
+    ! -path "/home/ec2-user/acebook/scripts" \
+    ! -path "/home/ec2-user/acebook/scripts/*" \
+    -exec rm -rf {} +
+else
+  echo "/home/ec2-user/acebook does not exist, skipping cleanup."
+fi
+
 
