@@ -32,7 +32,7 @@ jobs:
         run: |
           aws deploy create-deployment \
             --application-name acebook-h3-codedeploy \
-            --deployment-group-name production \
+            --deployment-group-name Production \
             --s3-location bucket=acebook-node-teamhhh,key=app.zip,bundleType=zip \
             --deployment-config-name CodeDeployDefault.OneAtATime \
             --description "Deployment from GitHub Actions"
