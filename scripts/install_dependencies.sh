@@ -1,17 +1,7 @@
 #!/bin/bash
-set -xe
-
-echo "Installing Node.js and npm..."
-
-# Install Node.js (using NodeSource repository for latest LTS)
-curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-sudo yum install -y nodejs
-
-echo "Node.js version: $(node --version)"
-echo "npm version: $(npm --version)"
-
-echo "Installing application dependencies..."
+# Ensure ownership of the directory
+sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
+# Navigate to the app directory
 cd /home/ec2-user/acebook
+# Install node dependencies
 npm install
-
-echo "Dependencies installed successfully"
