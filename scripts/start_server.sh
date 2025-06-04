@@ -1,5 +1,6 @@
 #!/bin/bash
-# Ensure ownership of the directory
-sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
 cd /home/ec2-user/acebook
-npm run start
+# Kill existing node processes (if re-deploying)
+pkill -f "node" || true
+# Start the server in the background
+nohup npm start > output.log 2>&1 &
