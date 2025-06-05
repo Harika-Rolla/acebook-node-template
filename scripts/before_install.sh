@@ -18,6 +18,13 @@
 #!/bin/bash
 echo "Cleaning old app directory..."
 
+# Kill any node processes specifically running from acebook directory
+echo "Stopping Node.js processes..."
+pkill -f "node.*acebook" || true
+pkill -f "nodemon.*acebook" || true
+pkill node || true
+sleep 5  # Longer wait for processes to fully stop
+
 # Make sure ownership is correct, only if directory exists
 if [ -d "/home/ec2-user/acebook" ]; then
   sudo chown -R ec2-user:ec2-user /home/ec2-user/acebook
